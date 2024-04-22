@@ -56,3 +56,4 @@ rvemu
 out/
 core
 playground/
+.vscode
