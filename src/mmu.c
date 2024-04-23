@@ -32,7 +32,8 @@ static void mmu_load_segment(mmu_t *mmu, elf64_phdr_t *phdr, int fd) {
   u64 remaining_bss = ROUNDUP(memsz, page_size) - ROUNDUP(filesz, page_size);
   if (remaining_bss > 0) {
     u64 addr = (u64)mmap((void *)(aligned_vaddr + ROUNDUP(filesz, page_size)),
-                         remaining_bss, prot, MAP_PRIVATE | MAP_FIXED, -1, 0);
+                         remaining_bss, prot,
+                         MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
     assert(addr == aligned_vaddr + ROUNDUP(filesz, page_size));
   }
 
