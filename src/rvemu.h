@@ -1,8 +1,12 @@
+#ifndef rvemu_RVEMU_H
+#define rvemu_RVEMU_H
+
 #include <assert.h>
 #include <dlfcn.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -201,9 +205,17 @@ enum exit_reason_t {
   ecall,
 };
 
+enum csr_t {
+  fflags = 0x001,
+  frm = 0x002,
+  fcsr = 0x003,
+};
+
 typedef struct {
   enum exit_reason_t exit_reason;
-  u64 gp_regs[32];
+  u64 reenter_pc;
+  u64 gp_regs[num_gp_regs];
+  fp_reg_t fp_regs[num_fp_regs];
   u64 pc;
 } state_t;
 
@@ -228,3 +240,5 @@ void exec_block_interp(state_t *state);
  * decode.c
  */
 void insn_decode(insn_t *insn, u32 data);
+
+#endif  // rvemu_RVEMU_H
