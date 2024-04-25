@@ -20,6 +20,9 @@
 #include "reg.h"
 #include "types.h"
 
+#define fatalf(fmt, ...)                                                       \
+  (fprintf(stderr, "fatal: %s:%d " fmt "\n", __FILE__, __LINE__, __VA_ARGS__), \
+   exit(1))
 #define fatal(msg) \
   (fprintf(stderr, "fatal: %s:%d %s\n", __FILE__, __LINE__, msg), exit(1))
 #define unreachable() (fatal("unreachable"), __builtin_unreachable())
@@ -28,6 +31,8 @@
 #define ROUNDUP(x, k) (((x) + (k)-1) & -(k))
 #define MIN(x, y) ((y) > (x) ? (x) : (y))
 #define MAX(x, y) ((y) < (x) ? (x) : (y))
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #define GUEST_MEMORY_OFFSET 0x088800000000ULL
 
@@ -231,6 +236,16 @@ typedef struct {
   mmu_t mmu;
 } machine_t;
 
+inline u64 machine_get_gp_reg(machine_t *m, i32 reg) {
+  assert(reg >= 0 && reg <= num_gp_regs);
+  return m->state.gp_regs[reg];
+}
+
+inline void machine_set_gp_reg(machine_t *m, i32 reg, u64 data) {
+  assert(reg >= 0 && reg <= num_gp_regs);
+  m->state.gp_regs[reg] = data;
+}
+
 void machine_setup(machine_t *m, int argc, char *argv[]);
 void machine_load_program(machine_t *m, char *prog);
 enum exit_reason_t machine_step(machine_t *m);
@@ -244,5 +259,10 @@ void exec_block_interp(state_t *state);
  * decode.c
  */
 void insn_decode(insn_t *insn, u32 data);
+
+/**
+ * syscall.c
+ */
+u64 do_syscall(machine_t *m, u64 n);
 
 #endif  // rvemu_RVEMU_H
