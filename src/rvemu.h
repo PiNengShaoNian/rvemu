@@ -14,6 +14,7 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include "elfdef.h"
@@ -203,6 +204,29 @@ u64 mmu_alloc(mmu_t *mmu, i64 sz);
 inline void mmu_write(u64 addr, u8 *data, size_t len) {
   memcpy((void *)TO_HOST(addr), (void *)data, len);
 }
+
+/**
+ * cache.c
+ */
+#define CACHE_ENTRY_SIZE (64 * 1024)
+#define CACHE_SIZE (64 * 1024 * 1024)
+
+typedef struct {
+  u64 pc;
+  u64 hot;
+  u64 offset;
+} cache_item_t;
+
+typedef struct {
+  u8 *jitcode;
+  u64 offset;
+  cache_item_t table[CACHE_ENTRY_SIZE];
+} cache_t;
+
+cache_t *new_cache();
+u8 *cache_lookup(cache_t *cache, u64 pc);
+u8 *cache_add(cache_t *cache, u64 pc, u8 *code, size_t sz, u64 align);
+bool cache_hot(cache_t *cache, u64 pc);
 
 /**
  * state.c
