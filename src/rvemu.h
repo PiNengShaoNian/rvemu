@@ -280,6 +280,19 @@ enum exit_reason_t machine_step(machine_t *m);
 void exec_block_interp(state_t *state);
 
 /**
+ * set.c
+ */
+#define SET_SIZE (32 * 1024)
+
+typedef struct {
+  u64 table[SET_SIZE];
+} set_t;
+
+bool set_hash(set_t *set, u64 elem) ;
+bool set_add(set_t *set, u64 elem);
+void set_reset(set_t *set);
+
+/**
  * decode.c
  */
 void insn_decode(insn_t *insn, u32 data);
