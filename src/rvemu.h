@@ -190,6 +190,20 @@ typedef struct {
 } insn_t;
 
 /**
+ * stack.c
+ */
+#define STACK_CAP 256
+typedef struct {
+  i64 top;
+  u64 elems[STACK_CAP];
+} stack_t;
+
+void stack_push(stack_t *stack, u64 elem);
+bool stack_pop(stack_t *stack, u64 *elem);
+void stack_reset(stack_t *stack);
+void stack_print(stack_t *stack);
+
+/**
  * mmu.c
  */
 typedef struct {
@@ -288,7 +302,7 @@ typedef struct {
   u64 table[SET_SIZE];
 } set_t;
 
-bool set_hash(set_t *set, u64 elem) ;
+bool set_hash(set_t *set, u64 elem);
 bool set_add(set_t *set, u64 elem);
 void set_reset(set_t *set);
 
