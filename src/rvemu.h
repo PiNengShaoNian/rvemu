@@ -204,6 +204,38 @@ void stack_reset(stack_t *stack);
 void stack_print(stack_t *stack);
 
 /**
+ * str.c
+ */
+#define STR_MAX_PREALLOC (1024 * 1024)
+#define STRHDR(s) ((strhdr_t *)((s) - (sizeof(strhdr_t))))
+
+#define DECLARE_STATIC_STR(name) \
+  static str_t name = NULL;      \
+  if (name)                      \
+    str_clear(name);             \
+  else                           \
+    name = str_new();
+
+typedef char *str_t;
+
+typedef struct {
+  u64 len;
+  u64 alloc;
+  char buf[];
+} strhdr_t;
+
+inline str_t str_new() {
+  strhdr_t *h = (strhdr_t *)calloc(1, sizeof(strhdr_t));
+  return h->buf;
+}
+
+inline size_t str_len(const str_t str) { return STRHDR(str)->len; }
+
+void str_clear(str_t str);
+
+str_t str_append(str_t str, const char *t);
+
+/**
  * mmu.c
  */
 typedef struct {
