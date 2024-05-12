@@ -29,7 +29,7 @@
 #define unreachable() (fatal("unreachable"), __builtin_unreachable())
 
 #define ROUNDDOWN(x, k) ((x) & -(k))
-#define ROUNDUP(x, k) (((x) + (k)-1) & -(k))
+#define ROUNDUP(x, k) (((x) + (k) - 1) & -(k))
 #define MIN(x, y) ((y) > (x) ? (x) : (y))
 #define MAX(x, y) ((y) < (x) ? (x) : (y))
 
@@ -208,7 +208,6 @@ void stack_print(stack_t *stack);
  */
 #define STR_MAX_PREALLOC (1024 * 1024)
 #define STRHDR(s) ((strhdr_t *)((s) - (sizeof(strhdr_t))))
-
 #define DECLARE_STATIC_STR(name) \
   static str_t name = NULL;      \
   if (name)                      \
@@ -281,6 +280,7 @@ enum exit_reason_t {
   none,
   direct_branch,
   indirect_branch,
+  interp,
   ecall,
 };
 
@@ -304,7 +304,10 @@ typedef struct {
 typedef struct {
   state_t state;
   mmu_t mmu;
+  cache_t *cache;
 } machine_t;
+
+typedef void (*exec_block_func_t)(state_t *);
 
 inline u64 machine_get_gp_reg(machine_t *m, i32 reg) {
   assert(reg >= 0 && reg <= num_gp_regs);
@@ -317,6 +320,8 @@ inline void machine_set_gp_reg(machine_t *m, i32 reg, u64 data) {
 }
 
 void machine_setup(machine_t *m, int argc, char *argv[]);
+str_t machine_genblock(machine_t *);
+u8 *machine_compile(machine_t *, str_t);
 void machine_load_program(machine_t *m, char *prog);
 enum exit_reason_t machine_step(machine_t *m);
 
